@@ -10,17 +10,10 @@
 </html>
 
 <?php
-// delete.php - Excluir autor
-$conn = new mysqli("localhost", "root", "", "biblioteca");
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-if (isset($_GET['id_autor'])) {
-    $id = $_GET['id_autor'];
-    $stmt = $conn->prepare("DELETE FROM autores WHERE id_autor=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-}
-header("Location: index.php");
+require_once '../config/db.php';
+$id = $_GET['id'];
+$stmt = $pdo->prepare('DELETE FROM autores WHERE id_autor = ?');
+$stmt->execute([$id]);
+header('Location: index.php');
 exit;
 ?>

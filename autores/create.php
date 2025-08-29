@@ -10,18 +10,20 @@
 </html>
 
 <?php
-// create.php - Criar autor
-$conn = new mysqli("localhost", "root", "", "biblioteca");
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-if (isset($_POST['criar'])) {
+require_once '../config/db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome = $_POST['nome'];
     $nacionalidade = $_POST['nacionalidade'];
     $ano = $_POST['ano_nascimento'];
-    $stmt = $conn->prepare("INSERT INTO autores (nome, nacionalidade, ano_nascimento) VALUES (?, ?, ?)");
-    $stmt->bind_param("ssi", $nome, $nacionalidade, $ano);
-    $stmt->execute();
+    $stmt = $pdo->prepare('INSERT INTO autores (nome, nacionalidade, ano_nascimento) VALUES (?, ?, ?)');
+    $stmt->execute([$nome, $nacionalidade, $ano]);
+    header('Location: index.php');
+    exit;
 }
-header("Location: index.php");
-exit;
+?>
+<form method="post">
+Nome: <input name="nome" required><br>
+Nacionalidade: <input name="nacionalidade"><br>
+Ano de nascimento: <input name="ano_nascimento" type="number"><br>
+<button type="submit">Salvar</button>
+</form>

@@ -56,5 +56,4 @@ a:hover { text-decoration: underline; }
 </tr>
 <?php endforeach; ?>
 </table>
-</body>
-</html>
+</body></html>

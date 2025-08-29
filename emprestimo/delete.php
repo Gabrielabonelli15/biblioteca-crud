@@ -1,14 +1,18 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+
 <?php
-// delete.php - Excluir empréstimo
-$conn = new mysqli("localhost", "root", "", "biblioteca");
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-if (isset($_GET['id_emprestimo'])) {
-    $id = $_GET['id_emprestimo'];
-    $stmt = $conn->prepare("DELETE FROM emprestimos WHERE id_emprestimo=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-}
-header("Location: ../emprestimo/");
+require_once '../config/db.php';
+$id = $_GET['id'];
+$stmt = $pdo->prepare('DELETE FROM emprestimos WHERE id_emprestimo = ?');
+$stmt->execute([$id]);
+header('Location: index.php');
 exit;

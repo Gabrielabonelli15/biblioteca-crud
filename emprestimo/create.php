@@ -1,3 +1,29 @@
+<?php
+require_once '../config/db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_livro = $_POST['id_livro'];
+    $id_leitor = $_POST['id_leitor'];
+    $data_emprestimo = $_POST['data_emprestimo'];
+    
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM emprestimos WHERE id_livro=? AND data_devolucao IS NULL');
+    $stmt->execute([$id_livro]);
+    if ($stmt->fetchColumn() > 0) {
+        echo 'Livro já emprestado!';
+        exit;
+    }
+    
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM emprestimos WHERE id_leitor=? AND data_devolucao IS NULL');
+    $stmt->execute([$id_leitor]);
+    if ($stmt->fetchColumn() >= 3) {
+        echo 'Leitor já possui 3 empréstimos ativos!';
+        exit;
+    }
+    $stmt = $pdo->prepare('INSERT INTO emprestimos (id_livro, id_leitor, data_emprestimo) VALUES (?, ?, ?)');
+    $stmt->execute([$id_livro, $id_leitor, $data_emprestimo]);
+    header('Location: index.php');
+    exit;
+}
+?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,35 +31,11 @@
     <title>Document</title>
 </head>
 <body>
-    <?php
-    // create.php - Criar empréstimo
-    $conn = new mysqli("localhost", "root", "", "biblioteca");
-    if ($conn->connect_error) {
-        die("Falha na conexão: " . $conn->connect_error);
-    }
-    if (isset($_POST['criar'])) {
-        $id_livro = $_POST['id_livro'];
-        $id_leitor = $_POST['id_leitor'];
-        $data_emprestimo = $_POST['data_emprestimo'];
-        // Regra: livro só pode ser emprestado se não houver outro empréstimo ativo
-        $verifica = $conn->query("SELECT * FROM emprestimos WHERE id_livro=$id_livro AND data_devolucao IS NULL");
-        if ($verifica->num_rows > 0) {
-            echo "Livro já está emprestado!";
-            exit;
-        }
-        // Regra: leitor pode ter no máximo 3 empréstimos ativos
-        $verifica_leitor = $conn->query("SELECT COUNT(*) as total FROM emprestimos WHERE id_leitor=$id_leitor AND data_devolucao IS NULL");
-        $row = $verifica_leitor->fetch_assoc();
-        if ($row['total'] >= 3) {
-            echo "Leitor já possui 3 empréstimos ativos!";
-            exit;
-        }
-        $stmt = $conn->prepare("INSERT INTO emprestimos (id_livro, id_leitor, data_emprestimo) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $id_livro, $id_leitor, $data_emprestimo);
-        $stmt->execute();
-    }
-    header("Location: ../emprestimo/");
-    exit;
-    ?>
+    <form method="post">
+        ID do Livro: <input name="id_livro" type="number" required><br>
+        ID do Leitor: <input name="id_leitor" type="number" required><br>
+        Data do Empréstimo: <input name="data_emprestimo" type="date" required><br>
+<button type="submit">Salvar</button>
+</form>
 </body>
 </html>

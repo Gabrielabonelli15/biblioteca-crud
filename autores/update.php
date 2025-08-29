@@ -1,3 +1,20 @@
+
+<?php
+require_once '../config/db.php';
+$id = $_GET['id'];
+$stmt = $pdo->prepare('SELECT * FROM autores WHERE id_autor = ?');
+$stmt->execute([$id]);
+$autor = $stmt->fetch();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'];
+    $nacionalidade = $_POST['nacionalidade'];
+    $ano = $_POST['ano_nascimento'];
+    $stmt = $pdo->prepare('UPDATE autores SET nome=?, nacionalidade=?, ano_nascimento=? WHERE id_autor=?');
+    $stmt->execute([$nome, $nacionalidade, $ano, $id]);
+    header('Location: index.php');
+    exit;
+}
+?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,35 +22,11 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <form method="post">
+Nome: <input name="nome" value="<?= $autor['nome'] ?>" required><br>
+Nacionalidade: <input name="nacionalidade" value="<?= $autor['nacionalidade'] ?>"><br>
+Ano de nascimento: <input name="ano_nascimento" type="number" value="<?= $autor['ano_nascimento'] ?>"><br>
+<button type="submit">Salvar</button>
+</form>
 </body>
 </html>
-
-<?php
-    include_once("../config.php");
-
-    $id_autor = $_GET['id_autor'];
-
-    $result = mysqli_query($conexao, "SELECT * FROM autores WHERE id_autor='$id_autor'");
-
-    while($autor_data = mysqli_fetch_array($result)) {
-        $nome = $autor_data['nome'];
-        $nacionalidade = $autor_data['nacionalidade'];
-        $ano_nascimento = $autor_data['ano_nascimento'];
-    }
-
-$conn = new mysqli("localhost", "root", "", "biblioteca");
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-if (isset($_POST['atualizar'])) {
-    $id = $_POST['id_autor'];
-    $nome = $_POST['nome'];
-    $nacionalidade = $_POST['nacionalidade'];
-    $ano = $_POST['ano_nascimento'];
-    $stmt = $conn->prepare("UPDATE autores SET nome=?, nacionalidade=?, ano_nascimento=? WHERE id_autor=?");
-    $stmt->bind_param("ssii", $nome, $nacionalidade, $ano, $id);
-    $stmt->execute();
-}
-header("Location: index.php");
-exit;
